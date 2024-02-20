@@ -1,58 +1,81 @@
-
 import javax.swing.*;
-import Board.Board;
-import Board.Square;
+import javax.swing.border.Border;
+
 import java.awt.*;
+import Board.Board;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-public class MainWindow extends JFrame{
+public class MainWindow extends JFrame {
+
+    private final int WINDOW_WIDTH = 1000; // Width
+    private final int WINDOW_HEIGHT = 1000; // Height
+
+    private JPanel mainPanel;
+    private StartPanel startPanel;
+    private GamePanel gamePanel;
+    private GameFinishPanel gameFinishPanel;
 
 
-    private final int WINDOW_WIDTH = 800; // Width
-    private final int WINDOW_HEIGHT = 800; // Height
-    
-    private JLabel timerLabel;
-    private JPanel playerPanel;
-    
-    public MainWindow(){
+    public MainWindow() {
         setTitle("Scrabble Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // set up layout for entire frame
-        setLayout(new BorderLayout());
+        initializePanels();
+        
+        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        centerFrame();
+        setVisible(true);
+    }
 
-        // create and add the game board panel
-        ScrabbleBoardPanel boardPanel = new ScrabbleBoardPanel(new Board());
-        boardPanel.setPreferredSize(new Dimension(boardPanel.getCellSize() * boardPanel.getBoardSize(), boardPanel.getCellSize() * boardPanel.getBoardSize()));
-        add(boardPanel, BorderLayout.CENTER);
+    
+    private void initializePanels() {
+        mainPanel = new JPanel(new CardLayout());
 
-        // create and add the player panel
-        playerPanel = new JPanel();
-        playerPanel.setLayout(new FlowLayout());
-        add(playerPanel, BorderLayout.SOUTH);
-       
-
-        // create and add timer label
-        timerLabel = new JLabel("00:00", SwingConstants.CENTER);
-        timerLabel.setFont(new Font("Times New Roman", Font.BOLD, 20));
-        add(timerLabel, BorderLayout.NORTH);
-
-        setExtendedState(JFrame.MAXIMIZED_BOTH);
-        pack();
+    startPanel = new StartPanel(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            startGame(startPanel.getSelectedNumberOfPlayers());
+        }
+    });
+    mainPanel.add(startPanel, "startPanel");
 
 
+    gamePanel = new GamePanel(new Board());
+    mainPanel.add(gamePanel, "gamePanel");
+
+
+    gameFinishPanel = new GameFinishPanel(new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            restartGame();
+        }
+    });
+    mainPanel.add(gameFinishPanel, "gameFinishPanel");
+
+    add(mainPanel, BorderLayout.CENTER);
+
+    }
+    
+
+    private void switchToPanel(String panelName){
+        CardLayout cardLayout = (CardLayout) mainPanel.getLayout();
+        cardLayout.show(mainPanel, panelName);
+    }
+
+    private void startGame(int numPlayers){
+        switchToPanel("gamePanel");
+    }
+
+    private void restartGame(){
+        switchToPanel("startPanel");
+    }
+
+    private void centerFrame() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int x = (screenSize.width - getWidth()) / 2;
         int y = (screenSize.height - getHeight()) / 2;
         setLocation(x, y);
-        setVisible(true);
-    
-
-
     }
 
-    public static void main(String[] args){
-        SwingUtilities.invokeLater(() -> {
-            new MainWindow();
-        });
-    }
 }

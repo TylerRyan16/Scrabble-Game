@@ -53,5 +53,10 @@ public class Board{
             System.out.println();
         }
     }
+    
+
+    public boolean isPremiumTile(int row, int col){
+        return !squares[row][col].getLetter().equals("o");
+    }
 
 }
